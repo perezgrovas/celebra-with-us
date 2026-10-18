@@ -135,12 +135,16 @@ const allowed: Record<AssetKind, string[]> = {
   photo: ["jpg", "jpeg", "png", "webp"],
   background: ["jpg", "jpeg", "png", "webp"],
   font: ["woff", "woff2", "ttf", "otf"],
+  sticker: ["png", "webp"],
+  video: ["mp4", "webm"],
 };
 export async function uploadAsset(wid: string, file: File, kind: AssetKind) {
   let ext = file.name.split(".").pop()?.toLowerCase() || "";
   if (!allowed[kind].includes(ext)) throw new Error("Formato no permitido.");
-  if (file.size > 10 * 1024 * 1024)
-    throw new Error("El archivo debe pesar menos de 10 MB.");
+  if (file.size > (kind === "video" ? 50 : 10) * 1024 * 1024)
+    throw new Error(
+      `El archivo debe pesar menos de ${kind === "video" ? 50 : 10} MB.`,
+    );
   if (kind === "photo") {
     file = await optimizePhoto(file);
     ext = file.name.split(".").pop()?.toLowerCase() || "webp";
@@ -164,6 +168,8 @@ export async function uploadAsset(wid: string, file: File, kind: AssetKind) {
   const id = crypto.randomUUID();
   const path = `${wid}/${id}.${ext}`;
   const mime: Record<string, string> = {
+    mp4: "video/mp4",
+    webm: "video/webm",
     woff: "font/woff",
     woff2: "font/woff2",
     ttf: "font/ttf",

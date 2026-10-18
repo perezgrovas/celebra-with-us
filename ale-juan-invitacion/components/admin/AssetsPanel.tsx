@@ -58,6 +58,8 @@ export default function AssetsPanel({
             <option value="photo">Foto</option>
             <option value="background">Fondo</option>
             <option value="font">Tipografía</option>
+            <option value="sticker">Sticker transparente</option>
+            <option value="video">Video</option>
           </select>
         </Field>
         <Field
@@ -67,9 +69,11 @@ export default function AssetsPanel({
             disabled={busy}
             type="file"
             accept={
-              kind === "font"
-                ? ".woff2,.woff,.ttf,.otf"
-                : ".jpg,.jpeg,.png,.webp"
+              kind === "video"
+                ? ".mp4,.webm"
+                : kind === "font"
+                  ? ".woff2,.woff,.ttf,.otf"
+                  : ".jpg,.jpeg,.png,.webp"
             }
             onChange={(e) => {
               const f = e.target.files?.[0];
@@ -94,15 +98,21 @@ export default function AssetsPanel({
               >
                 Aa
               </div>
+            ) : a.kind === "video" ? (
+              <video src={a.url} controls preload="metadata" />
             ) : (
               <img src={a.url} alt={a.alt} />
             )}
             <strong>{a.name}</strong>
             <small>
               {
-                { photo: "Foto", background: "Fondo", font: "Tipografía" }[
-                  a.kind
-                ]
+                {
+                  photo: "Foto",
+                  background: "Fondo",
+                  font: "Tipografía",
+                  sticker: "Sticker",
+                  video: "Video",
+                }[a.kind]
               }
             </small>
             {a.kind === "photo" && (

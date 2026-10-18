@@ -1,19 +1,19 @@
 # Validación de la entrega
 
-Fecha: 11 de octubre de 2026. Entorno: Node.js 24.19.0, npm 11.9.0. La revisión parte del ZIP original, que contenía un prototipo local sin Supabase.
+Fecha: 18 de octubre de 2026. Entrega 3.0: editor visual sobre la aplicación existente. Entorno: Node.js 24, npm 11.
 
-| Verificación                                                     | Resultado                                                   |
-| ---------------------------------------------------------------- | ----------------------------------------------------------- |
-| Instalación desde `package-lock.json` con `npm ci`               | Correcta                                                    |
-| `npm run typecheck`                                              | Correcto, sin errores de TypeScript                         |
-| `npm run build`                                                  | Correcto, build de producción de Next.js 16.4.0             |
-| `npm test`                                                       | 14 pruebas/subpruebas aprobadas                             |
-| `npm run test:e2e`                                               | 6 flujos aprobados sobre build de producción y `next start` |
-| Auditoría de dependencias de producción (`npm audit --omit=dev`) | 0 vulnerabilidades reportadas en esta revisión              |
+| Verificación                                       | Resultado                                                                                                                       |
+| -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| Instalación desde `package-lock.json` con `npm ci` | Correcta                                                                                                                        |
+| `npm run typecheck`                                | Correcto, sin errores de TypeScript                                                                                             |
+| `npm run build`                                    | Correcto, build de producción de Next.js 16.4.0                                                                                 |
+| `npm test`                                         | 20 pruebas/subpruebas aprobadas                                                                                                 |
+| `npm run test:e2e`                                 | 10 flujos aprobados sobre build de producción y `next start`                                                                    |
+| Dependencias de producción                         | Sin cambios respecto a la entrega anterior; la auditoría previa reportó 0 vulnerabilidades, no se repitió en esta actualización |
 
 ## Base de datos
 
-La migración completa se ejecutó en PostgreSQL embebido mediante PGlite, con roles `anon` y `authenticated`, usuarios de prueba y un esquema de Auth/Storage mínimo. Las pruebas ejercitan SQL real y RLS, no imitaciones en JavaScript de las reglas de negocio.
+Las migraciones 001 y 002 se ejecutaron; 002 se repitió para comprobar que admite reejecución. El SQL se ejecutó en PostgreSQL embebido mediante PGlite, con roles `anon` y `authenticated`, usuarios de prueba y un esquema de Auth/Storage mínimo. Las pruebas ejercitan SQL real y RLS, no imitaciones en JavaScript de las reglas de negocio.
 
 Se verificó:
 
@@ -46,10 +46,15 @@ Chromium, escritorio 1440 × 1000 y celular 390 × 844. Backend HTTP simulado pa
 5. Subida de foto, fondo y fuente personalizada; selección en galería/diseño, guardado y persistencia al recargar.
 6. Creación de mesa, asignación de invitado confirmado y persistencia al recargar desde celular.
 
-Se inspeccionaron capturas de escritorio, admin móvil e invitación móvil. La prueba de fuentes usa una tipografía sintética incluida solo en `tests/fixtures/`, no en la invitación.
+7. Acomodos, texto libre, doodles arrastrables y posición móvil independiente; guardar, recargar y publicar.
+8. Paletas predeterminadas/personalizadas, categorías de doodles y deshacer/rehacer.
+9. Video opcional, ocultar secciones y vista del invitado desde celular.
+10. Carga real de las 48 fuentes locales en FontFace, máscaras, carrusel y restablecimiento del fondo.
 
-## Pendiente de la infraestructura del titular
+Se inspeccionaron capturas de escritorio y móvil. Las pruebas unitarias verifican licencias y hashes de los archivos de fuentes. La fuente sintética de `tests/fixtures/` solo sirve para probar la subida de archivos propios.
 
-No se ha creado un proyecto de Supabase ni un despliegue de Vercel en tu cuenta. No se proporcionaron sus accesos. La conexión está implementada y se activa con la migración y las variables descritas en README.md.
+## Despliegue existente
 
-Antes de compartir enlaces definitivos, completa ese setup y valida el mismo flujo en tu proyecto: iniciar sesión, guardar y publicar, crear dos pases, confirmar desde otro dispositivo, volver a abrir la respuesta, subir archivos y asignar una mesa. Verifica también un acceso con otra cuenta para confirmar que no ve los datos de la boda.
+Tu sitio de Vercel y proyecto de Supabase ya existen. Esta actualización se validó localmente con SQL real embebido y servicios HTTP simulados; no se modificó tu base de datos ni se desplegó en tu cuenta. Sigue ACTUALIZAR.md: ejecutar únicamente 002 en el proyecto existente y actualizar el código del repositorio.
+
+Después del despliegue, comprueba iniciar sesión, guardar/publicar un cambio visual, subir una foto y confirmar una invitación desde otro dispositivo. No se probó esta actualización contra tus credenciales o datos reales.

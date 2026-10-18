@@ -1,11 +1,15 @@
-# Ale & Juan — invitación y administrador
+# Celebra with Us — editor visual de invitaciones
+
+**Si ya tienes la página publicada, empieza por `ACTUALIZAR.md`. Ejecuta únicamente `002_visual_editor.sql` sobre tu proyecto existente.**
+
+Versión 3: editor visual con seis acomodos, texto libre, doodles, máscaras, encuadre, carrusel, video, vistas móvil/escritorio, 48 fuentes locales y paletas personalizadas.
 
 Proyecto refactorizado en Next.js 16, React 19 y TypeScript, preparado para desplegar en Vercel y conectar con Supabase. La configuración y los datos ya no dependen de `localStorage`; el navegador conserva únicamente la sesión de Supabase Auth. **Necesitas crear/configurar tu proyecto de Supabase y las variables de Vercel antes de usar los flujos reales.** No se incluyen credenciales, ni se ha creado un despliegue en tu cuenta.
 
 ## 1. Preparar Supabase (una sola vez)
 
 1. Crea un **proyecto nuevo** en [Supabase](https://supabase.com/dashboard). Esta migración instala un esquema limpio; no la ejecutes sobre tablas de una versión anterior con los mismos nombres. El ZIP original era un prototipo local, sin base de datos ni lista de invitados incluida. Si tienes datos de otra versión, respáldalos e impórtalos por separado; no se eliminan ni se migran automáticamente.
-2. Abre **SQL Editor → New query**, pega todo `supabase/migrations/001_initial.sql` y ejecuta una sola vez. Crea cinco tablas, las funciones de publicación/RSVP, los permisos y el bucket `wedding-assets`.
+2. Abre **SQL Editor → New query**, pega todo `supabase/migrations/001_initial.sql` y ejecuta una sola vez. Después ejecuta `supabase/migrations/002_visual_editor.sql`. La primera crea cinco tablas, las funciones de publicación/RSVP, los permisos y el bucket `wedding-assets`.
 3. En **Authentication → Providers → Email**, habilita el acceso con correo y contraseña. Desactiva **Allow new users to sign up**: el sitio no tiene registro público.
 4. En **Authentication → Users → Add user → Create new user**, crea tu cuenta con correo y contraseña. Confirma el correo desde el dashboard (Auto Confirm User) para poder entrar. El organizador que crea la boda será su propietario. Esta versión tiene un propietario por boda; compartir una contraseña no es el mecanismo para añadir organizadores.
 5. En **Project Settings / API**, copia el **Project URL** y la clave **Publishable** (`sb_publishable_…`). Si tu proyecto solo muestra claves antiguas, puedes usar la clave `anon` en la misma variable. No uses `service_role` ni una clave secret.
@@ -80,7 +84,9 @@ Playwright inicia la aplicación con **build de producción y `next start`**, us
 - Orden real de secciones; mostrar/ocultar cada una. Fecha, nombres, itinerario, historia, vestimenta, hospedaje, regalos y mapa editables.
 - Colores personalizados; fuentes independientes para títulos, subtítulos, contenido y botones, con muestra de texto.
 - Fotos, fondos y fuentes persistentes en Supabase Storage. Fotos JPG/PNG/WebP se convierten a WebP de hasta 1920 px cuando el navegador lo admite; los fondos conservan sus bordes para mosaico. Límite de 10 MB por archivo. WOFF2/WOFF/TTF/OTF para fuentes; se valida que el navegador pueda leerlas antes de guardarlas.
-- Galería de hasta 30 fotos, foto de portada y fondo en mosaico o cubriendo toda la página. Texto alternativo editable para fotos.
+- Galería de hasta 30 fotos con carrusel manual, cuadrícula o mosaico; máscaras y encuadre. Foto de portada y fondo en mosaico o cubriendo toda la página. Texto alternativo editable para fotos.
+- Video opcional: YouTube, Vimeo o MP4/WebM subido (hasta 50 MB).
+- Editor por sección, texto libre y doodles movibles, tamaño/giro/color, vista de invitado y deshacer/rehacer. Consulta ACTUALIZAR.md para el recorrido.
 - Invitaciones individuales o grupales, 1–20 pases por grupo, nombres editables, búsqueda, filtros de respuesta y exportación CSV.
 - RSVP por pase, nombre de acompañante, alergias opcionales, plazo y permiso para corregir. Un envío guarda todos los pases de forma atómica. Volver a abrir el enlace recupera las respuestas.
 - Mesas de 1–50 lugares, asignación de confirmados y control de capacidad en la base de datos. Si alguien cancela, su mesa se libera automáticamente.
@@ -92,13 +98,14 @@ Playwright inicia la aplicación con **build de producción y `next start`**, us
 
 Fotos, fondos y fuentes usan un bucket público para que puedan mostrarse sin sesión. Los registros de invitados y respuestas no tienen lectura pública directa. Un archivo subido puede ser accesible mediante su URL aunque todavía no esté seleccionado en una publicación. No se permite borrar archivos desde este admin para evitar romper referencias de versiones publicadas; usa archivos nuevos para reemplazarlos y, si necesitas una limpieza, verifica primero sus referencias.
 
-Esta versión no incluye generación de imágenes con IA, envío automático de invitaciones, registro público, importación masiva de invitados, recuperación de contraseña por correo, drag-and-drop de mesas ni colaboración con varios propietarios. La contraseña se puede restablecer administrativamente en Supabase. Son ampliaciones futuras, no botones que simulan funcionar.
+Esta versión no incluye generación de imágenes con IA, envío automático de invitaciones, registro público, importación masiva de invitados, recuperación de contraseña por correo, drag-and-drop de mesas ni colaboración con varios propietarios. Sí incluye arrastre de los elementos de diseño en la invitación; las mesas conservan su selector de asignación. La contraseña se puede restablecer administrativamente en Supabase. Son ampliaciones futuras, no botones que simulan funcionar.
 
 ## 6. Arquitectura
 
 | Carpeta                    | Responsabilidad                                                           |
 | -------------------------- | ------------------------------------------------------------------------- |
 | `app/`                     | Rutas públicas, invitaciones por token, admin y estados de error          |
+| `components/editor/`       | Editor visual, selección, arrastre y selector de fuentes                  |
 | `components/admin/`        | Editor, carga de archivos, invitados y mesas                              |
 | `components/`              | Invitación, fuentes, cuenta regresiva y formulario de RSVP                |
 | `lib/config.ts`            | Contrato de configuración, valores iniciales y fechas                     |

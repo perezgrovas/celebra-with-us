@@ -3,6 +3,8 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { PGlite } from "@electric-sql/pglite";
 import { defaultConfig } from "../lib/config";
+import { layerSchema } from "../lib/design";
+import fonts from "../lib/font-catalog.json";
 const owner = "11111111-1111-4111-8111-111111111111";
 const stranger = "22222222-2222-4222-8222-222222222222";
 test("database RLS, scoped RSVP, publication, versioning and table constraints", async (t) => {
@@ -14,6 +16,25 @@ test("database RLS, scoped RSVP, publication, versioning and table constraints",
     await db.exec(
       await readFile(
         new URL("../supabase/migrations/001_initial.sql", import.meta.url),
+        "utf8",
+      ),
+    );
+    await db.exec(
+      await readFile(
+        new URL(
+          "../supabase/migrations/002_visual_editor.sql",
+          import.meta.url,
+        ),
+        "utf8",
+      ),
+    );
+    // Reapplying the upgrade must not rename the wrapper over its preserved base.
+    await db.exec(
+      await readFile(
+        new URL(
+          "../supabase/migrations/002_visual_editor.sql",
+          import.meta.url,
+        ),
         "utf8",
       ),
     );
@@ -394,9 +415,107 @@ test("database RLS, scoped RSVP, publication, versioning and table constraints",
         );
       },
     );
+    await t.test(
+      "visual update validates scope and publishes referenced stickers and video",
+      async () => {
+        await role("owner");
+        const photo = "88888888-8888-4888-8888-888888888888";
+        const sticker = "cccccccc-cccc-4ccc-8ccc-cccccccccccc";
+        const video = "dddddddd-dddd-4ddd-8ddd-dddddddddddd";
+        for (const [id, kind, ext] of [
+          [sticker, "sticker", "png"],
+          [video, "video", "mp4"],
+        ])
+          await db.query(
+            "insert into public.assets(id,wedding_id,kind,name,path,url) values($1,$2,$3,$4,$5,$6)",
+            [
+              id,
+              w,
+              kind,
+              "Visual",
+              `${w}/${id}.${ext}`,
+              `https://example.test/${id}.${ext}`,
+            ],
+          );
+        const layer = layerSchema.parse({
+          id: "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee",
+          kind: "photo",
+          assetId: sticker,
+          section: "hero",
+          font: fonts[0].family,
+        });
+        const settings = {
+          ...cfg,
+          fonts: { ...cfg.fonts, title: fonts[0].family },
+          design: {
+            ...cfg.design,
+            sections: {
+              hero: {
+                layout: "center",
+                imageAssetId: photo,
+                padding: 64,
+                titleSize: 48,
+                bodySize: 16,
+              },
+            },
+            layers: [layer],
+            video: { ...cfg.design.video, assetId: video },
+          },
+        };
+        await assert.rejects(
+          () =>
+            db.query("select public.save_wedding($1,6,$2,true)", [
+              w,
+              {
+                ...settings,
+                design: {
+                  ...settings.design,
+                  layers: [
+                    {
+                      ...layer,
+                      assetId: "ffffffff-ffff-4fff-8fff-ffffffffffff",
+                    },
+                  ],
+                },
+              },
+            ]),
+          /no disponible/,
+        );
+        await assert.rejects(
+          () =>
+            db.query("select public.save_wedding($1,6,$2,true)", [
+              w,
+              {
+                ...settings,
+                design: {
+                  ...settings.design,
+                  layers: [
+                    { ...layer, position: { x: 105, y: 50, width: 20 } },
+                  ],
+                },
+              },
+            ]),
+          /Posición inválida/,
+        );
+        await db.query("select public.save_wedding($1,6,$2,true)", [
+          w,
+          settings,
+        ]);
+        await role("anon");
+        const payload = (
+          await db.query<{ data: { assets: { id: string }[] } }>(
+            "select public.get_public_wedding('ale-juan') as data",
+          )
+        ).rows[0].data;
+        assert.deepEqual(
+          new Set(payload.assets.map((a) => a.id)),
+          new Set([photo, sticker, video]),
+        );
+      },
+    );
     await t.test("unpublish revokes token access", async () => {
       await role("owner");
-      await db.query("select public.unpublish_wedding($1,6)", [w]);
+      await db.query("select public.unpublish_wedding($1,7)", [w]);
       await role("anon");
       assert.equal(
         (

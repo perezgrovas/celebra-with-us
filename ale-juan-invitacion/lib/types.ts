@@ -1,5 +1,5 @@
 import type { WeddingConfig } from "./config";
-export type AssetKind = "photo" | "background" | "font";
+export type AssetKind = "photo" | "background" | "font" | "sticker" | "video";
 export type Asset = {
   id: string;
   wedding_id: string;

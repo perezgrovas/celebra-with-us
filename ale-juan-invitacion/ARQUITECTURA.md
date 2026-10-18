@@ -33,3 +33,15 @@ Auth conserva su sesión en el navegador. La configuración de la boda no se gua
 La aplicación es un proyecto desplegable en Vercel con integración de Supabase implementada. La infraestructura remota la crea el titular con la migración y variables documentadas. El bucket de assets es público por diseño; las tablas de invitados tienen lectura exclusiva para el organizador y las funciones por token.
 
 Un registro comercial para varias parejas, varios editores por boda, recuperación por correo y migración desde otra base no se incorporaron como soluciones parciales. La separación actual permite agregar esas funciones con contratos específicos.
+
+## Editor visual (versión 3)
+
+`lib/design.ts` define un modelo versionable dentro de `config.design`: ajustes por sección, capas libres, posiciones móviles, galería, video y paletas propias. Los documentos antiguos reciben valores predeterminados sin perder sus datos. `lib/config.ts` sigue siendo el contrato compartido con validación Zod.
+
+`components/editor/VisualEditor.tsx` coordina selección, herramientas, historial limitado a 30 pasos y carga de assets. FontPicker, Movable, PhotoGallery y los catálogos locales separan recursos, movimiento y presentación. El editor y la página pública usan el mismo componente Invitation; la vista del invitado elimina los controles. El historial es temporal; guardar y publicar siguen pasando por la API existente con control de versión.
+
+La migración 002 amplía el validador existente conservando las reglas de propietario, RSVP y publicación. Valida referencias de assets de la misma boda y expone solo archivos usados en la versión publicada. Añade stickers y video al catálogo/bucket. Es aditiva y admite repetición; los proyectos existentes no deben reejecutar 001.
+
+Las 48 fuentes se sirven localmente, con carga de las familias usadas y de las miniaturas de la categoría abierta. El manifiesto registra origen, versión, licencia y hash; los textos completos de licencia viajan en el proyecto. Los doodles son SVG originales, no archivos externos ejecutables.
+
+Los videos embebidos aceptan hosts exactos de YouTube/Vimeo. El iframe envía solo el origen mediante `strict-origin-when-cross-origin`; así evita revelar el token del invitado y permite la reproducción de YouTube. Los demás enlaces mantienen la política general. Las subidas de video admiten MP4/WebM hasta 50 MB; el límite de fuentes y demás archivos sigue siendo 10 MB. No hay reproducción automática ni transcodificación de video.

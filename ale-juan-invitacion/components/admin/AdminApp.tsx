@@ -26,6 +26,7 @@ import {
   loadAdminData,
 } from "@/lib/services/weddings";
 import type { Wedding, Asset, Guest, Group, WeddingTable } from "@/lib/types";
+import VisualEditor from "../editor/VisualEditor";
 import Invitation from "@/components/Invitation";
 import AssetFonts from "@/components/AssetFonts";
 import ConfigEditor, { Field, type EditorTab } from "./ConfigEditor";
@@ -33,6 +34,7 @@ import AssetsPanel from "./AssetsPanel";
 import GuestsPanel from "./GuestsPanel";
 import TablesPanel from "./TablesPanel";
 const tabs = [
+  { id: "visual", name: "Diseñar invitación", icon: SlidersHorizontal },
   { id: "datos", name: "Detalles del día", icon: CalendarDays },
   { id: "secciones", name: "Secciones", icon: LayoutList },
   { id: "diseno", name: "Colores y tipografías", icon: SlidersHorizontal },
@@ -52,7 +54,7 @@ export default function AdminApp() {
     groups: Group[];
     tables: WeddingTable[];
   }>({ assets: [], guests: [], groups: [], tables: [] });
-  const [tab, setTab] = useState<EditorTab>("datos");
+  const [tab, setTab] = useState<EditorTab>("visual");
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState("");
   const [preview, setPreview] = useState(false);
@@ -365,22 +367,46 @@ export default function AdminApp() {
         <aside className={nav ? "open" : ""}>
           <p className="nav-label">DISEÑA TU INVITACIÓN</p>
           <nav aria-label="Editor de invitación">
-            {tabs.map((t, i) => (
-              <div key={t.id}>
-                {i === 5 && <p className="nav-label">ORGANIZA EL GRAN DÍA</p>}
-                <button
-                  aria-current={tab === t.id ? "page" : undefined}
-                  className={tab === t.id ? "active" : ""}
-                  onClick={() => {
-                    setTab(t.id);
-                    setNav(false);
-                  }}
-                >
-                  <t.icon size={18} />
-                  {t.name}
-                </button>
-              </div>
-            ))}
+            {tabs
+              .filter(
+                (t) => !["secciones", "diseno", "contenido"].includes(t.id),
+              )
+              .map((t, i) => (
+                <div key={t.id}>
+                  {i === 3 && <p className="nav-label">ORGANIZA EL GRAN DÍA</p>}
+                  <button
+                    aria-current={tab === t.id ? "page" : undefined}
+                    className={tab === t.id ? "active" : ""}
+                    onClick={() => {
+                      setTab(t.id);
+                      setNav(false);
+                    }}
+                  >
+                    <t.icon size={18} />
+                    {t.name}
+                  </button>
+                </div>
+              ))}
+            <details className="other-settings">
+              <summary>Otros ajustes</summary>
+              {tabs
+                .filter((t) =>
+                  ["secciones", "diseno", "contenido"].includes(t.id),
+                )
+                .map((t) => (
+                  <button
+                    key={t.id}
+                    className={tab === t.id ? "active" : ""}
+                    onClick={() => {
+                      setTab(t.id);
+                      setNav(false);
+                    }}
+                  >
+                    <t.icon size={16} />
+                    {t.name}
+                  </button>
+                ))}
+            </details>
           </nav>
           <div className="sidebar-bottom">
             <a href="/" target="_blank" rel="noopener noreferrer">
@@ -408,110 +434,129 @@ export default function AdminApp() {
             </button>
           </div>
         </aside>
-        <section className="control-panel">
-          <div className="dashboard-top">
-            <div>
-              <p className="kicker">EL COMIENZO DE ALGO BONITO</p>
-              <h1>Hagámosla suya.</h1>
-              <p>
-                Cada detalle cuenta. Empieza por lo esencial y dale tu toque.
-              </p>
+        {tab === "visual" ? (
+          <VisualEditor
+            notice={notice}
+            config={config}
+            onChange={setConfig}
+            assets={data.assets}
+            wid={wedding.id}
+            refresh={refresh}
+            report={setNotice}
+            guestPreview={preview}
+            closePreview={() => setPreview(false)}
+          />
+        ) : (
+          <section className="control-panel">
+            <div className="dashboard-top">
+              <div>
+                <p className="kicker">EL COMIENZO DE ALGO BONITO</p>
+                <h1>Hagámosla suya.</h1>
+                <p>
+                  Cada detalle cuenta. Empieza por lo esencial y dale tu toque.
+                </p>
+              </div>
+              <span className="save-state">
+                {dirty ? "Cambios sin guardar" : "Todo guardado"}
+              </span>
             </div>
-            <span className="save-state">
-              {dirty ? "Cambios sin guardar" : "Todo guardado"}
-            </span>
-          </div>
-          <div className="stats">
-            <article>
-              <span>INVITADOS</span>
-              <strong>{data.guests.length}</strong>
-            </article>
-            <article>
-              <span>CONFIRMADOS</span>
-              <strong>{confirmed}</strong>
-            </article>
-            <article>
-              <span>PENDIENTES</span>
-              <strong>{pending}</strong>
-            </article>
-          </div>
-          <div className="notice" role="status">
-            {notice ||
-              "Guarda tu borrador cuando quieras. Publicar actualiza la invitación que ven tus invitados."}
-          </div>
-          <div className="editor-heading">
-            <span className="step-pill">
-              {String(tabs.findIndex((t) => t.id === tab) + 1).padStart(2, "0")}
-            </span>
-            <h2>{tabs.find((t) => t.id === tab)?.name}</h2>
-            {(tab === "invitados" || tab === "mesas") && (
+            <div className="stats">
+              <article>
+                <span>INVITADOS</span>
+                <strong>{data.guests.length}</strong>
+              </article>
+              <article>
+                <span>CONFIRMADOS</span>
+                <strong>{confirmed}</strong>
+              </article>
+              <article>
+                <span>PENDIENTES</span>
+                <strong>{pending}</strong>
+              </article>
+            </div>
+            <div className="notice" role="status">
+              {notice ||
+                "Guarda tu borrador cuando quieras. Publicar actualiza la invitación que ven tus invitados."}
+            </div>
+            <div className="editor-heading">
+              <span className="step-pill">
+                {String(tabs.findIndex((t) => t.id === tab) + 1).padStart(
+                  2,
+                  "0",
+                )}
+              </span>
+              <h2>{tabs.find((t) => t.id === tab)?.name}</h2>
+              {(tab === "invitados" || tab === "mesas") && (
+                <button
+                  className="secondary"
+                  disabled={busy}
+                  onClick={() =>
+                    void refresh().catch((e) => setNotice(String(e)))
+                  }
+                >
+                  Actualizar respuestas
+                </button>
+              )}
+            </div>
+            <fieldset className="editor-fields" disabled={busy}>
+              {tab === "archivos" ? (
+                <AssetsPanel
+                  wid={wedding.id}
+                  assets={data.assets}
+                  config={config}
+                  onChange={setConfig}
+                  refresh={refresh}
+                  report={setNotice}
+                />
+              ) : tab === "invitados" ? (
+                <GuestsPanel
+                  wid={wedding.id}
+                  groups={data.groups}
+                  guests={data.guests}
+                  refresh={refresh}
+                  report={setNotice}
+                />
+              ) : tab === "mesas" ? (
+                <TablesPanel
+                  wid={wedding.id}
+                  tables={data.tables}
+                  guests={data.guests}
+                  refresh={refresh}
+                  report={setNotice}
+                />
+              ) : (
+                <ConfigEditor
+                  tab={tab}
+                  config={config}
+                  onChange={setConfig}
+                  assets={data.assets}
+                />
+              )}
+            </fieldset>
+          </section>
+        )}
+        {tab !== "visual" && (
+          <section className={`preview-panel ${preview ? "preview-open" : ""}`}>
+            <div className="preview-label">
+              <span>VISTA PREVIA EN VIVO</span>
               <button
-                className="secondary"
-                disabled={busy}
-                onClick={() =>
-                  void refresh().catch((e) => setNotice(String(e)))
-                }
+                className="icon-button"
+                aria-label="Cerrar vista previa"
+                onClick={() => setPreview(false)}
               >
-                Actualizar respuestas
+                ×
               </button>
-            )}
-          </div>
-          <fieldset className="editor-fields" disabled={busy}>
-            {tab === "archivos" ? (
-              <AssetsPanel
-                wid={wedding.id}
-                assets={data.assets}
-                config={config}
-                onChange={setConfig}
-                refresh={refresh}
-                report={setNotice}
-              />
-            ) : tab === "invitados" ? (
-              <GuestsPanel
-                wid={wedding.id}
-                groups={data.groups}
-                guests={data.guests}
-                refresh={refresh}
-                report={setNotice}
-              />
-            ) : tab === "mesas" ? (
-              <TablesPanel
-                wid={wedding.id}
-                tables={data.tables}
-                guests={data.guests}
-                refresh={refresh}
-                report={setNotice}
-              />
-            ) : (
-              <ConfigEditor
-                tab={tab}
-                config={config}
-                onChange={setConfig}
-                assets={data.assets}
-              />
-            )}
-          </fieldset>
-        </section>
-        <section className={`preview-panel ${preview ? "preview-open" : ""}`}>
-          <div className="preview-label">
-            <span>VISTA PREVIA EN VIVO</span>
-            <button
-              className="icon-button"
-              aria-label="Cerrar vista previa"
-              onClick={() => setPreview(false)}
-            >
-              ×
-            </button>
-          </div>
-          <div className="phone">
-            <Invitation config={previewConfig} assets={data.assets} preview />
-          </div>
-          <p className="preview-tip">
-            Así se verá en su celular.
-            <br />
-            Desliza para ver todas las secciones.
-          </p>
-        </section>
+            </div>
+            <div className="phone">
+              <Invitation config={previewConfig} assets={data.assets} preview />
+            </div>
+            <p className="preview-tip">
+              Así se verá en su celular.
+              <br />
+              Desliza para ver todas las secciones.
+            </p>
+          </section>
+        )}
       </div>
     </div>
   );

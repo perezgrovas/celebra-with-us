@@ -1,7 +1,9 @@
 "use client";
+import libraryFonts from "@/lib/font-catalog.json";
 import { sectionLabels, type WeddingConfig } from "@/lib/config";
 import type { Asset } from "@/lib/types";
 export type EditorTab =
+  | "visual"
   | "datos"
   | "secciones"
   | "diseno"
@@ -29,6 +31,7 @@ const fontOptions = [
   "Palatino",
   "Times New Roman",
   "Trebuchet MS",
+  ...libraryFonts.map((f) => f.family),
 ];
 const palettes = [
   {
@@ -270,7 +273,9 @@ export default function ConfigEditor({
                 }
               >
                 {fontOptions.map((f) => (
-                  <option key={f}>{f}</option>
+                  <option key={f} value={f}>
+                    {libraryFonts.find((x) => x.family === f)?.name || f}
+                  </option>
                 ))}
                 {assets
                   .filter((a) => a.kind === "font")

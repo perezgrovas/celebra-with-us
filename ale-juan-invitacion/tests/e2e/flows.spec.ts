@@ -8,6 +8,12 @@ async function login(page: import("@playwright/test").Page) {
   await page.getByLabel("Correo electrónico").fill("ale@example.test");
   await page.getByLabel("Contraseña", { exact: true }).fill("test-password");
   await page.getByRole("button", { name: "Entrar a mi invitación" }).click();
+  await expect(page.locator(".visual-editor")).toBeVisible();
+  if ((await page.viewportSize())!.width < 761)
+    await page.getByRole("button", { name: "Abrir navegación" }).click();
+  await page
+    .getByRole("button", { name: "Detalles del día", exact: true })
+    .click();
   await expect(
     page.getByRole("heading", { name: "Hagámosla suya." }),
   ).toBeVisible();
@@ -42,7 +48,11 @@ test("admin desktop: authentication, draft save, section order, guests and previ
   await page.getByRole("button", { name: "Guardar", exact: true }).click();
   await expect(page.getByRole("status")).toContainText("Borrador guardado");
   await page.reload();
+  await page
+    .getByRole("button", { name: "Detalles del día", exact: true })
+    .click();
   await expect(page.getByLabel("Nombre de la novia")).toHaveValue("Alejandra");
+  await page.getByText("Otros ajustes", { exact: true }).click();
   await page.getByRole("button", { name: "Secciones", exact: true }).click();
   await page
     .getByRole("button", { name: "Bajar Portada", exact: true })
@@ -70,6 +80,7 @@ test("admin mobile: navigation and preview are accessible", async ({
   await page.setViewportSize({ width: 390, height: 844 });
   await login(page);
   await page.getByRole("button", { name: "Abrir navegación" }).click();
+  await page.getByText("Otros ajustes", { exact: true }).click();
   await page.getByRole("button", { name: "Colores y tipografías" }).click();
   await expect(
     page.getByRole("heading", { name: "Tipografías", exact: true }),
@@ -151,6 +162,7 @@ test("photos, backgrounds and custom fonts survive reload", async ({
     .locator("input[type=file]")
     .setInputFiles("tests/fixtures/test-font.ttf");
   await expect(page.getByText("test-font.ttf", { exact: true })).toBeVisible();
+  await page.getByText("Otros ajustes", { exact: true }).click();
   await page.getByRole("button", { name: "Colores y tipografías" }).click();
   await page
     .getByLabel("Títulos", { exact: false })
@@ -159,6 +171,7 @@ test("photos, backgrounds and custom fonts survive reload", async ({
   await page.getByRole("button", { name: "Guardar", exact: true }).click();
   await expect(page.getByRole("status")).toContainText("Borrador guardado");
   await page.reload();
+  await page.getByText("Otros ajustes", { exact: true }).click();
   await page.getByRole("button", { name: "Colores y tipografías" }).click();
   await expect(page.getByLabel("Imagen de fondo")).not.toHaveValue("");
   await expect(

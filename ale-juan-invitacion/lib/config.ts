@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { designSchema, defaultDesign } from "./design";
 import { fromZonedTime } from "date-fns-tz";
 
 export const sectionLabels = {
@@ -13,6 +14,7 @@ export const sectionLabels = {
   gifts: "Regalos",
   rsvp: "Confirmación",
   final: "Despedida",
+  video: "Video",
 } as const;
 export type SectionKey = keyof typeof sectionLabels;
 const text = z.string().trim().max(4000);
@@ -64,11 +66,13 @@ export const configSchema = z
           enabled: z.boolean(),
         }),
       )
-      .length(11)
+      .min(11)
+      .max(12)
       .refine(
-        (a) => new Set(a.map((s) => s.key)).size === 11,
+        (a) => new Set(a.map((s) => s.key)).size === a.length,
         "Cada sección debe aparecer una sola vez",
       ),
+    design: designSchema.default(defaultDesign),
     content: z.object({
       storyTitle: text,
       story: text,
@@ -112,6 +116,7 @@ export const configSchema = z
   });
 export type WeddingConfig = z.infer<typeof configSchema>;
 export const defaultConfig: WeddingConfig = {
+  design: defaultDesign,
   couple: {
     bride: "Ale",
     groom: "Juan",
@@ -139,7 +144,7 @@ export const defaultConfig: WeddingConfig = {
   backgroundMode: "repeat",
   sections: (Object.keys(sectionLabels) as SectionKey[]).map((key) => ({
     key,
-    enabled: true,
+    enabled: key !== "video",
   })),
   content: {
     storyTitle: "8 años juntos y contando",
