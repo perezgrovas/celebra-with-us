@@ -1,0 +1,116 @@
+[
+  {
+    "name": "logo-principal",
+    "url": "/juan-ale/logo-principal.webp",
+    "kind": "sticker",
+    "description": "logo principal"
+  },
+  {
+    "name": "logo-sello",
+    "url": "/juan-ale/logo-sello.webp",
+    "kind": "sticker",
+    "description": "logo sello"
+  },
+  {
+    "name": "pareja-retrato",
+    "url": "/juan-ale/pareja-retrato.webp",
+    "kind": "sticker",
+    "description": "pareja retrato"
+  },
+  {
+    "name": "hacienda",
+    "url": "/juan-ale/hacienda.webp",
+    "kind": "sticker",
+    "description": "hacienda"
+  },
+  {
+    "name": "iglesia-interior",
+    "url": "/juan-ale/iglesia-interior.webp",
+    "kind": "sticker",
+    "description": "iglesia interior"
+  },
+  {
+    "name": "ramo-novia",
+    "url": "/juan-ale/ramo-novia.webp",
+    "kind": "sticker",
+    "description": "ramo novia"
+  },
+  {
+    "name": "arco-floral",
+    "url": "/juan-ale/arco-floral.webp",
+    "kind": "sticker",
+    "description": "arco floral"
+  },
+  {
+    "name": "capilla-decorada",
+    "url": "/juan-ale/capilla-decorada.webp",
+    "kind": "sticker",
+    "description": "capilla decorada"
+  },
+  {
+    "name": "coche-boda",
+    "url": "/juan-ale/coche-boda.webp",
+    "kind": "sticker",
+    "description": "coche boda"
+  },
+  {
+    "name": "torre-champan",
+    "url": "/juan-ale/torre-champan.webp",
+    "kind": "sticker",
+    "description": "torre champan"
+  },
+  {
+    "name": "fuente",
+    "url": "/juan-ale/fuente.webp",
+    "kind": "sticker",
+    "description": "fuente"
+  },
+  {
+    "name": "limones",
+    "url": "/juan-ale/limones.webp",
+    "kind": "sticker",
+    "description": "limones"
+  },
+  {
+    "name": "marco-floral",
+    "url": "/juan-ale/marco-floral.webp",
+    "kind": "sticker",
+    "description": "marco floral"
+  },
+  {
+    "name": "centro-velas",
+    "url": "/juan-ale/centro-velas.webp",
+    "kind": "sticker",
+    "description": "centro velas"
+  },
+  {
+    "name": "flores-lamina",
+    "url": "/juan-ale/flores-lamina.webp",
+    "kind": "sticker",
+    "description": "flores lamina"
+  },
+  {
+    "name": "boda-lamina",
+    "url": "/juan-ale/boda-lamina.webp",
+    "kind": "sticker",
+    "description": "boda lamina"
+  },
+  {
+    "name": "italia-lamina",
+    "url": "/juan-ale/italia-lamina.webp",
+    "kind": "sticker",
+    "description": "italia lamina"
+  },
+  {
+    "name": "viajes-lamina",
+    "url": "/juan-ale/viajes-lamina.webp",
+    "kind": "sticker",
+    "description": "viajes lamina"
+  },
+  {
+    "name": "fiesta-lamina",
+    "url": "/juan-ale/fiesta-lamina.webp",
+    "kind": "sticker",
+    "description": "fiesta lamina"
+  }
+]

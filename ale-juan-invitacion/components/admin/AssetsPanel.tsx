@@ -22,6 +22,34 @@ export default function AssetsPanel({
 }) {
   const [kind, setKind] = useState<AssetKind>("photo");
   const [busy, setBusy] = useState(false);
+  const [importing, setImporting] = useState(false);
+  async function importJuanAle() {
+    if (!window.confirm("¿Agregar las ilustraciones Juan & Ale a tu biblioteca de Supabase? No se modificarán los diseños publicados.")) return;
+    setImporting(true);
+    try {
+      const response = await fetch("/juan-ale/catalogo.json");
+      if (!response.ok) throw new Error("No se encontró el catálogo");
+      const entries: { name: string; url: string }[] = await response.json();
+      const existing = new Set(assets.map((asset) => asset.name));
+      let added = 0;
+      for (const entry of entries) {
+        const filename = `juan-ale-${entry.name}.webp`;
+        if (existing.has(filename)) continue;
+        const imageResponse = await fetch(entry.url);
+        if (!imageResponse.ok) throw new Error(`Falta la ilustración ${entry.name}`);
+        const file = new File([await imageResponse.blob()], filename, { type: "image/webp" });
+        await uploadAsset(wid, file, "sticker");
+        added++;
+      }
+      await refresh();
+      report(`${added} ilustraciones nuevas en tu biblioteca de stickers.`);
+    } catch (e) {
+      await refresh();
+      report(e instanceof Error ? e.message : "Error al importar las ilustraciones");
+    } finally {
+      setImporting(false);
+    }
+  }
   async function upload(file: File) {
     setBusy(true);
     try {
@@ -49,6 +77,13 @@ export default function AssetsPanel({
         dispositivo. Los archivos visuales se sirven mediante enlaces públicos;
         sube solo material para compartir.
       </p>
+      <div className="upload-box">
+        <strong>Ilustraciones exclusivas de Juan & Ale</strong>
+        <p className="hint">19 recursos preparados en el proyecto. Presiona para copiarlos a tu biblioteca de Supabase y utilizarlos como stickers movibles dentro del editor. Las láminas de varios dibujos se importan como una imagen; todavía no son stickers separados.</p>
+        <button type="button" onClick={() => void importJuanAle()} disabled={busy || importing}>
+          {importing ? "Importando ilustraciones…" : "Importar paquete Juan & Ale"}
+        </button>
+      </div>
       <div className="upload-box">
         <Field label="Tipo de archivo">
           <select

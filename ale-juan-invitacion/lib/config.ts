@@ -128,10 +128,10 @@ export const defaultConfig: WeddingConfig = {
   },
   colors: {
     bg: "#F7F1E8",
-    text: "#2C2A26",
-    accent: "#7E8666",
-    soft: "#DED7CA",
-    button: "#2C2A26",
+    text: "#893F04",
+    accent: "#C67F43",
+    soft: "#DDB8A6",
+    button: "#7B876D",
   },
   fonts: {
     title: "Georgia",
